@@ -1,19 +1,34 @@
 package com.example.facialasymmetryandroid
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
     val REQUEST_IMAGE_CAPTURE = 1
+    val GET_GALLERY_IMAGE =2
+
+    var m_imageFile: File? = null
+    val TAG = "test"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,15 +37,22 @@ class MainActivity : AppCompatActivity() {
         var permissionlistener: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {
                 camera_btn.setOnClickListener {
-                    Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-                        takePictureIntent.resolveActivity(packageManager)?.also {
+                    val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    if(takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                        createImageFile()?.let {
+                            val photoURI = FileProvider.getUriForFile(this@MainActivity,
+                                "com.example.facialasymmetryandroid", it)
+                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                            m_imageFile = it
                         }
                     }
                 }
 
                 gallery_btn.setOnClickListener {
-
+                    val intent = Intent(Intent.ACTION_PICK)
+                    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+                    startActivityForResult(intent, GET_GALLERY_IMAGE)
                 }
 
                 submit_btn.setOnClickListener {
@@ -58,12 +80,50 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED
+            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Permisson: " + permissions[0] + " was " + grantResults[0])
+        }
+    }
+
+    private fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "PHOTO_${timeStamp}.jpg"
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File(storageDir, imageFileName)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            /*Glide 사용 시
             val imageBitmap = data?.extras?.get("data") as Bitmap
             Glide.with(this)
                 .load(imageBitmap)
+                .into(imageView);*/
+            m_imageFile?.let {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val source = ImageDecoder.createSource(contentResolver, Uri.fromFile(it))
+                    ImageDecoder.decodeBitmap(source)?.let {
+                        imageView.setImageBitmap(it)
+                    }
+                } else {
+                    MediaStore.Images.Media.getBitmap(contentResolver, Uri.fromFile(it))?.let {
+                        imageView.setImageBitmap(it)
+                    }
+                }
+            }
+        }
+        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK) {
+            val uri : Uri? = data?.data
+            Glide.with(this)
+                .load(uri)
                 .into(imageView);
         }
     }
