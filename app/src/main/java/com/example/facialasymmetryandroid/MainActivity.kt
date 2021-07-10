@@ -17,13 +17,17 @@ import com.bumptech.glide.Glide
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class MainActivity : AppCompatActivity() {
 
+
+    private val viewModel = MainViewModel()
     val REQUEST_IMAGE_CAPTURE = 1
     val GET_GALLERY_IMAGE =2
 
@@ -57,6 +61,43 @@ class MainActivity : AppCompatActivity() {
 
                 submit_btn.setOnClickListener {
 
+
+                    // convert Bitmap to File
+                    // create a file to write bitmap data
+                    val f = File(applicationContext.cacheDir, "tmp")
+                    f.createNewFile()
+
+                    // convert bitmap to byte array
+                    val bos = ByteArrayOutputStream()
+                    val bitmap : Bitmap? = null
+                    if (bitmap != null) {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 0, bos)
+                    }
+                    val bitmapdata = bos.toByteArray()
+
+                    // write the bytes in file
+                    var fos: FileOutputStream? = null
+                    try {
+                        fos = FileOutputStream(f)
+                    } catch (e: FileNotFoundException) {
+                        e.printStackTrace()
+                    }
+                    try {
+                        fos!!.write(bitmapdata)
+                        fos!!.flush()
+                        fos!!.close()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+
+
+                    val reqFile: RequestBody =
+                        RequestBody.create(MediaType.parse("multipart/form-data"), f)
+                    val body = MultipartBody.Part.createFormData("file", f.getName(), reqFile)
+                    viewModel.postImage(body)
+                    viewModel.responseBody.observe(this@MainActivity, androidx.lifecycle.Observer {
+                      
+                    })
                 }
             }
 
