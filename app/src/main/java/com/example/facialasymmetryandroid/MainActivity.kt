@@ -10,27 +10,30 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import com.bumptech.glide.Glide
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
+import com.router.cointts.repository.ServerRecieverService
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-
-    private val viewModel = MainViewModel()
     val REQUEST_IMAGE_CAPTURE = 1
-    val GET_GALLERY_IMAGE =2
+    val GET_GALLERY_IMAGE = 2
 
+    var bitmap: Bitmap? = null
     var m_imageFile: File? = null
     val TAG = "test"
 
@@ -42,10 +45,12 @@ class MainActivity : AppCompatActivity() {
             override fun onPermissionGranted() {
                 camera_btn.setOnClickListener {
                     val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                    if(takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                         createImageFile()?.let {
-                            val photoURI = FileProvider.getUriForFile(this@MainActivity,
-                                "com.example.facialasymmetryandroid", it)
+                            val photoURI = FileProvider.getUriForFile(
+                                this@MainActivity,
+                                "com.example.facialasymmetryandroid", it
+                            )
                             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                             m_imageFile = it
@@ -62,16 +67,17 @@ class MainActivity : AppCompatActivity() {
                 submit_btn.setOnClickListener {
 
 
+                    //todo 파일 만드는 부분 코드 리팩토링하기
+
                     // convert Bitmap to File
                     // create a file to write bitmap data
                     val f = File(applicationContext.cacheDir, "tmp")
                     f.createNewFile()
-
                     // convert bitmap to byte array
                     val bos = ByteArrayOutputStream()
-                    val bitmap : Bitmap? = null
                     if (bitmap != null) {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 0, bos)
+                        Log.d(TAG, "onPermissionGranted: 파일 성공 저장")
+                        bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, bos)
                     }
                     val bitmapdata = bos.toByteArray()
 
@@ -91,12 +97,46 @@ class MainActivity : AppCompatActivity() {
                     }
 
 
+                    // Call API
+                    val service: ServerRecieverService = Retrofit
+                        .Builder()
+                        .baseUrl("http://220.69.208.242:80")
+                        .build()
+                        .create(ServerRecieverService::class.java)
+
+                    //MultipartBody에 현재 bitmap 담기
                     val reqFile: RequestBody =
                         RequestBody.create(MediaType.parse("multipart/form-data"), f)
                     val body = MultipartBody.Part.createFormData("file", f.getName(), reqFile)
-                    viewModel.postImage(body)
-                    viewModel.responseBody.observe(this@MainActivity, androidx.lifecycle.Observer {
-                      
+                    
+                    //이미지 전송후 콜백받는 부분
+                    service.postImage(body).enqueue(object : Callback<ResponseBody> {
+                        override fun onResponse(
+                            call: Call<ResponseBody>,
+                            response: Response<ResponseBody>
+                        ) {
+                            //응답오는 과정에서 에러 발생 시
+                            if (!response.isSuccessful) {
+                                Log.d(TAG, "onResponse: 에러 " + response.code())
+                                return
+                            }
+                            
+                            //파이썬 코드로부터 응답받는 부분
+                            //todo 이미지 받는부분으로 변경
+                            try {
+                                Log.d(TAG, "onResponse: "+ response.body()!!.string())
+                            } catch (e: IOException) {
+                                e.printStackTrace()
+                            }
+                            
+                            //bitmap이랑 imageview 초기화
+                            bitmap = null
+                            imageView.setImageResource(0)
+                        }
+
+                        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                            Log.d(TAG, "onFailure: 연결 실패")
+                        }
                     })
                 }
             }
@@ -127,8 +167,9 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(grantResults[0] == PackageManager.PERMISSION_GRANTED
-            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+            && grantResults[1] == PackageManager.PERMISSION_GRANTED
+        ) {
             Log.d(TAG, "Permisson: " + permissions[0] + " was " + grantResults[0])
         }
     }
@@ -143,29 +184,26 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            /*Glide 사용 시
-            val imageBitmap = data?.extras?.get("data") as Bitmap
-            Glide.with(this)
-                .load(imageBitmap)
-                .into(imageView);*/
             m_imageFile?.let {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val source = ImageDecoder.createSource(contentResolver, Uri.fromFile(it))
                     ImageDecoder.decodeBitmap(source)?.let {
                         imageView.setImageBitmap(it)
+                        bitmap = it
                     }
                 } else {
                     MediaStore.Images.Media.getBitmap(contentResolver, Uri.fromFile(it))?.let {
                         imageView.setImageBitmap(it)
+                        bitmap = it
                     }
                 }
             }
         }
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK) {
-            val uri : Uri? = data?.data
-            Glide.with(this)
-                .load(uri)
-                .into(imageView);
+
+            val localBitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, data?.data)
+            imageView.setImageBitmap(bitmap)
+            bitmap = localBitmap
         }
     }
 }

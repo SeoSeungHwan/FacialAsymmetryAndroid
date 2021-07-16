@@ -13,7 +13,7 @@ interface ServerRecieverService {
 
     @Multipart
     @POST("/res")
-    suspend fun postImage(
+    fun postImage(
         @Part image : MultipartBody.Part
     ): Call<ResponseBody>
 
