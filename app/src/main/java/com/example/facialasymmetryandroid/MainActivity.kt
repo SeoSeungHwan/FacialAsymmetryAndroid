@@ -3,6 +3,7 @@ package com.example.facialasymmetryandroid
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
                 submit_btn.setOnClickListener {
 
-
+                    imageView.setImageResource(0)
                     //todo 파일 만드는 부분 코드 리팩토링하기
 
                     // convert Bitmap to File
@@ -124,14 +125,15 @@ class MainActivity : AppCompatActivity() {
                             //파이썬 코드로부터 응답받는 부분
                             //todo 이미지 받는부분으로 변경
                             try {
-                                Log.d(TAG, "onResponse: "+ response.body()!!.string())
+                                val file = response.body()?.byteStream()
+                                val b = BitmapFactory.decodeStream(file)
+                                imageView.setImageBitmap(b)
                             } catch (e: IOException) {
-                                e.printStackTrace()
                             }
                             
                             //bitmap이랑 imageview 초기화
-                            bitmap = null
-                            imageView.setImageResource(0)
+                            //bitmap = null
+
                         }
 
                         override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
@@ -202,8 +204,9 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK) {
 
             val localBitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, data?.data)
-            imageView.setImageBitmap(bitmap)
             bitmap = localBitmap
+            imageView.setImageBitmap(bitmap)
+
         }
     }
 }
