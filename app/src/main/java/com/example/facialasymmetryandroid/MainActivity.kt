@@ -5,14 +5,17 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import com.router.cointts.repository.ServerRecieverService
@@ -65,6 +68,11 @@ class MainActivity : AppCompatActivity() {
                     startActivityForResult(intent, GET_GALLERY_IMAGE)
                 }
 
+                reset_btn.setOnClickListener {
+                    imageView.setImageResource(0)
+                    bitmap =null
+                }
+
                 submit_btn.setOnClickListener {
 
                     imageView.setImageResource(0)
@@ -109,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                     val reqFile: RequestBody =
                         RequestBody.create(MediaType.parse("multipart/form-data"), f)
                     val body = MultipartBody.Part.createFormData("file", f.getName(), reqFile)
-                    
+
                     //이미지 전송후 콜백받는 부분
                     service.postImage(body).enqueue(object : Callback<ResponseBody> {
                         override fun onResponse(
@@ -121,7 +129,7 @@ class MainActivity : AppCompatActivity() {
                                 Log.d(TAG, "onResponse: 에러 " + response.code())
                                 return
                             }
-                            
+
                             //파이썬 코드로부터 응답받는 부분
                             //todo 이미지 받는부분으로 변경
                             try {
@@ -130,9 +138,7 @@ class MainActivity : AppCompatActivity() {
                                 imageView.setImageBitmap(b)
                             } catch (e: IOException) {
                             }
-                            
-                            //bitmap이랑 imageview 초기화
-                            //bitmap = null
+
 
                         }
 
@@ -201,11 +207,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        //todo 이미지회전 해결하기
         if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK) {
-
             val localBitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, data?.data)
             bitmap = localBitmap
             imageView.setImageBitmap(bitmap)
+            //Glide.with(this).asBitmap().load(bitmap).into(imageView)
 
         }
     }
