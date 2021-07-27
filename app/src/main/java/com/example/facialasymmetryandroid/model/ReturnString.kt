@@ -1,7 +1,7 @@
 package com.example.facialasymmetryandroid.model
 
-data class Result(
+data class ReturnString(
     var status: String,
     var message: String,
-    var encoding_img: String
+    var imageBytes: String
 )

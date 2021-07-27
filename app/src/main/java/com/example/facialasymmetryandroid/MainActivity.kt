@@ -10,9 +10,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Base64.*
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.example.facialasymmetryandroid.model.ReturnString
+import com.google.gson.Gson
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import com.router.cointts.repository.ServerRecieverService
@@ -25,7 +28,6 @@ import retrofit2.Retrofit
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -129,15 +131,17 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             //파이썬 코드로부터 응답받는 부분
-                            //todo 이미지 받는부분으로 변경
+
                             try {
-                                val file = response.body()?.byteStream()
-                                val b = BitmapFactory.decodeStream(file)
-                                imageView.setImageBitmap(b)
+                                //텍스트와 이미지 가져오기
+                                Gson().fromJson(response.body()!!.string(),ReturnString::class.java).also {
+                                    val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
+                                    val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
+                                    imageView.setImageBitmap(bitmap)
+                                }
                             } catch (e: IOException) {
+                                Log.d(TAG, "onResponse: 텍스트와 이미지 가져오는 부분에서 에러")
                             }
-
-
                         }
 
                         override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
