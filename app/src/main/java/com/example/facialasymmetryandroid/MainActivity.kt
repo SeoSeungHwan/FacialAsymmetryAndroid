@@ -12,6 +12,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64.*
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.example.facialasymmetryandroid.model.ReturnString
@@ -32,6 +33,8 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    val viewModel = MainViewModel()
+
     val REQUEST_IMAGE_CAPTURE = 1
     val GET_GALLERY_IMAGE = 2
 
@@ -43,10 +46,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //타입 제목 상단 TextView에 입력
         var intent = intent
         title_tv.text = intent.getStringExtra("type")
+
+        //PermissionListener 구현
         var permissionlistener: PermissionListener = object : PermissionListener {
+            //Permission 승인될 시
             override fun onPermissionGranted() {
+
+                //사진촬영 OnClickListener 구현
                 camera_btn.setOnClickListener {
                     val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                     if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -62,27 +71,28 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                //불러오기 OnClickListener 구현
                 gallery_btn.setOnClickListener {
                     val intent = Intent(Intent.ACTION_PICK)
                     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
                     startActivityForResult(intent, GET_GALLERY_IMAGE)
                 }
 
+                //사진 초기화 OnClickListener 구현
                 reset_btn.setOnClickListener {
                     imageView.setImageResource(0)
                     bitmap =null
                 }
-
+                //검사 시작 OnClickListener 구현
+                //todo loadingbar 구현
                 submit_btn.setOnClickListener {
 
-                    imageView.setImageResource(0)
-                    //todo 파일 만드는 부분 코드 리팩토링하기
 
-                    // convert Bitmap to File
-                    // create a file to write bitmap data
+                    imageView.setImageResource(0)
+
                     val f = File(applicationContext.cacheDir, "tmp")
                     f.createNewFile()
-                    // convert bitmap to byte array
+
                     val bos = ByteArrayOutputStream()
                     if (bitmap != null) {
                         Log.d(TAG, "onPermissionGranted: 파일 성공 저장")
@@ -90,18 +100,15 @@ class MainActivity : AppCompatActivity() {
                     }
                     val bitmapdata = bos.toByteArray()
 
-                    // write the bytes in file
-                    var fos: FileOutputStream? = null
+
                     try {
-                        fos = FileOutputStream(f)
-                    } catch (e: FileNotFoundException) {
-                        e.printStackTrace()
-                    }
-                    try {
+                        var fos = FileOutputStream(f)
                         fos!!.write(bitmapdata)
                         fos!!.flush()
                         fos!!.close()
                     } catch (e: IOException) {
+                        e.printStackTrace()
+                    } catch (e: FileNotFoundException) {
                         e.printStackTrace()
                     }
 
@@ -127,6 +134,7 @@ class MainActivity : AppCompatActivity() {
                             //응답오는 과정에서 에러 발생 시
                             if (!response.isSuccessful) {
                                 Log.d(TAG, "onResponse: 에러 " + response.code())
+                                Toast.makeText(this@MainActivity,"얼굴을 찾지 못하였습니다.",Toast.LENGTH_SHORT).show()
                                 return
                             }
 
@@ -134,11 +142,12 @@ class MainActivity : AppCompatActivity() {
 
                             try {
                                 //텍스트와 이미지 가져오기
-                                Gson().fromJson(response.body()!!.string(),ReturnString::class.java).also {
-                                    val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
-                                    val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
-                                    imageView.setImageBitmap(bitmap)
-                                }
+                                    Gson().fromJson(response.body()!!.string(),ReturnString::class.java).also {
+                                        val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
+                                        val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
+                                        imageView.setImageBitmap(bitmap)
+                                        Toast.makeText(this@MainActivity,it.message,Toast.LENGTH_SHORT).show()
+                                    }
                             } catch (e: IOException) {
                                 Log.d(TAG, "onResponse: 텍스트와 이미지 가져오는 부분에서 에러")
                             }
@@ -146,6 +155,7 @@ class MainActivity : AppCompatActivity() {
 
                         override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                             Log.d(TAG, "onFailure: 연결 실패")
+                            Toast.makeText(this@MainActivity,"얼굴을 찾지 못하였습니다.",Toast.LENGTH_SHORT).show()
                         }
                     })
                 }
@@ -214,7 +224,6 @@ class MainActivity : AppCompatActivity() {
             val localBitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, data?.data)
             bitmap = localBitmap
             imageView.setImageBitmap(bitmap)
-            //Glide.with(this).asBitmap().load(bitmap).into(imageView)
 
         }
     }
