@@ -20,14 +20,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FacialAsymmetryAndroid"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MenuSelect">
+        <activity android:name=".SelectMenu">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MenuSelect">
+
+        </activity>
+        <activity android:name=".MainActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
