@@ -27,7 +27,7 @@ class SelectMenu : AppCompatActivity() {
         ultra_viewpager.getIndicator()
             .setOrientation(UltraViewPager.Orientation.HORIZONTAL)
             .setFocusColor(R.color.main)
-            .setNormalColor(Color.WHITE)
+            .setNormalColor(R.color.main2)
             .setRadius(
                 TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics)
                     .toInt()
@@ -37,13 +37,13 @@ class SelectMenu : AppCompatActivity() {
         ultra_viewpager.getIndicator().build()
         ultra_viewpager.setInfiniteLoop(true)
 
-        ultra_viewpager.setMultiScreen(0.5f)
+        ultra_viewpager.setMultiScreen(0.7f)
         ultra_viewpager.setItemRatio(1.0);
         ultra_viewpager.setAutoMeasureHeight(true);
 
         ultra_viewpager.setPageTransformer(false,UltraDepthScaleTransformer())
 
-        //todo 타입 선택 시 해당 타입으로 테스트창으로 이동
+
 
 
 

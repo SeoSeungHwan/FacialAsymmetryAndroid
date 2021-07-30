@@ -45,7 +45,7 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         val textview = view.findViewById<View>(R.id.type_tv) as TextView
 
         image.setImageResource(images[position])
-        image.setOnClickListener {
+        view.setOnClickListener {
             var intent = Intent(context, MainActivity::class.java)
             intent.putExtra("type",textview.text.toString())
             context.startActivity(intent)
