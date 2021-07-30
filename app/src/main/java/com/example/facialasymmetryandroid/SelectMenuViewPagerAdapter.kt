@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.tmall.ultraviewpager.transformer.UltraDepthScaleTransformer
-import kotlinx.android.synthetic.main.type_item.view.*
 
 class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter(){
 
@@ -46,6 +45,11 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         val textview = view.findViewById<View>(R.id.type_tv) as TextView
 
         image.setImageResource(images[position])
+        image.setOnClickListener {
+            var intent = Intent(context, MainActivity::class.java)
+            intent.putExtra("type",textview.text.toString())
+            context.startActivity(intent)
+        }
         textview.text = texts[position]
         val viewpager = container as ViewPager
         viewpager.addView(view,0)
