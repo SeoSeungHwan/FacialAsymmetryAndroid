@@ -65,5 +65,6 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         viewPager.removeView(view)
     }
 
+    
 
 }
