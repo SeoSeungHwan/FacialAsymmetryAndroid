@@ -16,12 +16,12 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
     private var layoutInflater : LayoutInflater? = null
 
     private var images = arrayOf(
-        R.drawable.ic_crazy,
-        R.drawable.ic_crazy,
-        R.drawable.ic_crazy,
-        R.drawable.ic_crazy,
-        R.drawable.ic_crazy,
-        R.drawable.ic_crazy
+        R.drawable.a,
+        R.drawable.b,
+        R.drawable.c,
+        R.drawable.d,
+        R.drawable.e,
+        R.drawable.f
     )
     private var texts = arrayOf(
         "Type1",

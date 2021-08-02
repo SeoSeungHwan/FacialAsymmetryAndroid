@@ -22,7 +22,7 @@ class SelectMenu : AppCompatActivity() {
 
         ultra_viewpager.adapter = adapter
         ultra_viewpager.setScrollMode(UltraViewPager.ScrollMode.HORIZONTAL)
-        ultra_viewpager.initIndicator()
+        /*ultra_viewpager.initIndicator()
         ultra_viewpager.getIndicator()
             .setOrientation(UltraViewPager.Orientation.HORIZONTAL)
             .setFocusColor(Color.YELLOW)
@@ -33,7 +33,7 @@ class SelectMenu : AppCompatActivity() {
             )
         ultra_viewpager.indicator.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM)
         ultra_viewpager.indicator.build()
-        ultra_viewpager.indicator.setMargin(0,0,0,50)
+        ultra_viewpager.indicator.setMargin(0,0,0,50)*/
         ultra_viewpager.setInfiniteLoop(true)
         ultra_viewpager.setMultiScreen(0.6f)
         ultra_viewpager.setItemRatio(1.0);

@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
         //타입 제목 상단 TextView에 입력
         var intent = intent
-        val type  = intent.getStringExtra("type")
+        val type = intent.getStringExtra("type")
         title_tv.text = type
 
         //PermissionListener 구현
@@ -82,103 +82,129 @@ class MainActivity : AppCompatActivity() {
                 //사진 초기화 OnClickListener 구현
                 reset_btn.setOnClickListener {
                     imageView.setImageResource(0)
-                    bitmap =null
+                    bitmap = null
                 }
                 //검사 시작 OnClickListener 구현
                 //todo loadingbar 구현
                 submit_btn.setOnClickListener {
+                    //이미지를 입력하지 않았다면
+                    if (bitmap == null) {
+                        Toast.makeText(this@MainActivity, "이미지를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        imageView.setImageResource(0)
 
+                        val f = File(applicationContext.cacheDir, "tmp")
+                        f.createNewFile()
 
-                    imageView.setImageResource(0)
-
-                    val f = File(applicationContext.cacheDir, "tmp")
-                    f.createNewFile()
-
-                    val bos = ByteArrayOutputStream()
-                    if (bitmap != null) {
-                        Log.d(TAG, "onPermissionGranted: 파일 성공 저장")
-                        bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, bos)
-                    }
-                    val bitmapdata = bos.toByteArray()
-
-
-                    try {
-                        var fos = FileOutputStream(f)
-                        fos!!.write(bitmapdata)
-                        fos!!.flush()
-                        fos!!.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    } catch (e: FileNotFoundException) {
-                        e.printStackTrace()
-                    }
-
-
-                    // Call API
-                    val service: ServerRecieverService = Retrofit
-                        .Builder()
-                        .baseUrl("http://220.69.208.242:80")
-                        .build()
-                        .create(ServerRecieverService::class.java)
-
-                    //MultipartBody에 현재 bitmap 담기
-                    val reqFile: RequestBody =
-                        RequestBody.create(MediaType.parse("multipart/form-data"), f)
-                    val body = MultipartBody.Part.createFormData("file", f.getName(), reqFile)
-
-
-                    //이미지 전송후 콜백받는 부분
-                    val type1 = service.postImage1(body)
-                    val type2 = service.postImage2(body)
-                    val type3 = service.postImage3(body)
-                    val type4 = service.postImage4(body)
-                    val type5 = service.postImage5(body)
-                    val type6 = service.postImage6(body)
-
-                    fun funType(typeStr : String) : Call<ResponseBody> {
-                        return when (typeStr) {
-                            "Type1" -> type1
-                            "Type2" -> type2
-                            "Type3" -> type3
-                            "Type4" -> type4
-                            "Type5" -> type5
-                            "Type6" -> type6
-                            else -> type1
+                        val bos = ByteArrayOutputStream()
+                        if (bitmap != null) {
+                            Log.d(TAG, "onPermissionGranted: 파일 성공 저장")
+                            bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, bos)
                         }
-                    }
-                    if (type != null) {
-                        funType(type).enqueue(object : Callback<ResponseBody> {
-                            override fun onResponse(
-                                call: Call<ResponseBody>,
-                                response: Response<ResponseBody>
-                            ) {
-                                //응답오는 과정에서 에러 발생 시
-                                if (!response.isSuccessful) {
-                                    Log.d(TAG, "onResponse: 에러 " + response.code())
-                                    Toast.makeText(this@MainActivity,"얼굴을 찾지 못하였습니다.",Toast.LENGTH_SHORT).show()
-                                    return
-                                }
+                        val bitmapdata = bos.toByteArray()
 
-                                //파이썬 코드로부터 응답받는 부분
 
-                                try {
-                                    //텍스트와 이미지 가져오기
-                                    Gson().fromJson(response.body()!!.string(),ReturnString::class.java).also {
-                                        val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
-                                        val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
-                                        imageView.setImageBitmap(bitmap)
-                                        Toast.makeText(this@MainActivity,it.message,Toast.LENGTH_SHORT).show()
+                        try {
+                            var fos = FileOutputStream(f)
+                            fos!!.write(bitmapdata)
+                            fos!!.flush()
+                            fos!!.close()
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                        } catch (e: FileNotFoundException) {
+                            e.printStackTrace()
+                        }
+
+
+                        // Call API
+                        val service: ServerRecieverService = Retrofit
+                            .Builder()
+                            .baseUrl("http://220.69.208.242:80")
+                            .build()
+                            .create(ServerRecieverService::class.java)
+
+                        //MultipartBody에 현재 bitmap 담기
+                        val reqFile: RequestBody =
+                            RequestBody.create(MediaType.parse("multipart/form-data"), f)
+                        val body = MultipartBody.Part.createFormData("file", f.getName(), reqFile)
+
+
+                        //이미지 전송후 콜백받는 부분
+                        val type1 = service.postImage1(body)
+                        val type2 = service.postImage2(body)
+                        val type3 = service.postImage3(body)
+                        val type4 = service.postImage4(body)
+                        val type5 = service.postImage5(body)
+                        val type6 = service.postImage6(body)
+
+                        fun funType(typeStr: String): Call<ResponseBody> {
+                            return when (typeStr) {
+                                "Type1" -> type1
+                                "Type2" -> type2
+                                "Type3" -> type3
+                                "Type4" -> type4
+                                "Type5" -> type5
+                                "Type6" -> type6
+                                else -> type1
+                            }
+                        }
+                        if (type != null) {
+                            funType(type).enqueue(object : Callback<ResponseBody> {
+                                override fun onResponse(
+                                    call: Call<ResponseBody>,
+                                    response: Response<ResponseBody>
+                                ) {
+                                    //응답오는 과정에서 에러 발생 시
+                                    if (!response.isSuccessful) {
+                                        Log.d(TAG, "onResponse: 에러 " + response.code())
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "얼굴을 찾지 못하였습니다.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        return
                                     }
-                                } catch (e: IOException) {
-                                    Log.d(TAG, "onResponse: 텍스트와 이미지 가져오는 부분에서 에러")
-                                }
-                            }
 
-                            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                                Log.d(TAG, "onFailure: 연결 실패")
-                                Toast.makeText(this@MainActivity,"얼굴을 찾지 못하였습니다.",Toast.LENGTH_SHORT).show()
-                            }
-                        })
+                                    //파이썬 코드로부터 응답받는 부분
+
+                                    try {
+                                        //텍스트와 이미지 가져오기
+                                        Gson().fromJson(
+                                            response.body()!!.string(),
+                                            ReturnString::class.java
+                                        ).also {
+                                            val encodeByte = android.util.Base64.decode(
+                                                it.imageBytes,
+                                                android.util.Base64.DEFAULT
+                                            )
+                                            val bitmap = BitmapFactory.decodeByteArray(
+                                                encodeByte,
+                                                0,
+                                                encodeByte.size
+                                            )
+                                            imageView.setImageBitmap(bitmap)
+                                            Toast.makeText(
+                                                this@MainActivity,
+                                                it.message,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    } catch (e: IOException) {
+                                        Log.d(TAG, "onResponse: 텍스트와 이미지 가져오는 부분에서 에러")
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                                    Log.d(TAG, "onFailure: 연결 실패")
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "얼굴을 찾지 못하였습니다.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            })
+                        }
+
                     }
                 }
             }
