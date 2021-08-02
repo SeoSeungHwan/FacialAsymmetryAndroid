@@ -48,7 +48,8 @@ class MainActivity : AppCompatActivity() {
 
         //타입 제목 상단 TextView에 입력
         var intent = intent
-        title_tv.text = intent.getStringExtra("type")
+        val type  = intent.getStringExtra("type")
+        title_tv.text = type
 
         //PermissionListener 구현
         var permissionlistener: PermissionListener = object : PermissionListener {
@@ -125,39 +126,60 @@ class MainActivity : AppCompatActivity() {
                         RequestBody.create(MediaType.parse("multipart/form-data"), f)
                     val body = MultipartBody.Part.createFormData("file", f.getName(), reqFile)
 
+
                     //이미지 전송후 콜백받는 부분
-                    service.postImage(body).enqueue(object : Callback<ResponseBody> {
-                        override fun onResponse(
-                            call: Call<ResponseBody>,
-                            response: Response<ResponseBody>
-                        ) {
-                            //응답오는 과정에서 에러 발생 시
-                            if (!response.isSuccessful) {
-                                Log.d(TAG, "onResponse: 에러 " + response.code())
-                                Toast.makeText(this@MainActivity,"얼굴을 찾지 못하였습니다.",Toast.LENGTH_SHORT).show()
-                                return
-                            }
+                    val type1 = service.postImage1(body)
+                    val type2 = service.postImage2(body)
+                    val type3 = service.postImage3(body)
+                    val type4 = service.postImage4(body)
+                    val type5 = service.postImage5(body)
+                    val type6 = service.postImage6(body)
 
-                            //파이썬 코드로부터 응답받는 부분
+                    fun funType(typeStr : String) : Call<ResponseBody> {
+                        return when (typeStr) {
+                            "Type1" -> type1
+                            "Type2" -> type2
+                            "Type3" -> type3
+                            "Type4" -> type4
+                            "Type5" -> type5
+                            "Type6" -> type6
+                            else -> type1
+                        }
+                    }
+                    if (type != null) {
+                        funType(type).enqueue(object : Callback<ResponseBody> {
+                            override fun onResponse(
+                                call: Call<ResponseBody>,
+                                response: Response<ResponseBody>
+                            ) {
+                                //응답오는 과정에서 에러 발생 시
+                                if (!response.isSuccessful) {
+                                    Log.d(TAG, "onResponse: 에러 " + response.code())
+                                    Toast.makeText(this@MainActivity,"얼굴을 찾지 못하였습니다.",Toast.LENGTH_SHORT).show()
+                                    return
+                                }
 
-                            try {
-                                //텍스트와 이미지 가져오기
+                                //파이썬 코드로부터 응답받는 부분
+
+                                try {
+                                    //텍스트와 이미지 가져오기
                                     Gson().fromJson(response.body()!!.string(),ReturnString::class.java).also {
                                         val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
                                         val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
                                         imageView.setImageBitmap(bitmap)
                                         Toast.makeText(this@MainActivity,it.message,Toast.LENGTH_SHORT).show()
                                     }
-                            } catch (e: IOException) {
-                                Log.d(TAG, "onResponse: 텍스트와 이미지 가져오는 부분에서 에러")
+                                } catch (e: IOException) {
+                                    Log.d(TAG, "onResponse: 텍스트와 이미지 가져오는 부분에서 에러")
+                                }
                             }
-                        }
 
-                        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                            Log.d(TAG, "onFailure: 연결 실패")
-                            Toast.makeText(this@MainActivity,"얼굴을 찾지 못하였습니다.",Toast.LENGTH_SHORT).show()
-                        }
-                    })
+                            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                                Log.d(TAG, "onFailure: 연결 실패")
+                                Toast.makeText(this@MainActivity,"얼굴을 찾지 못하였습니다.",Toast.LENGTH_SHORT).show()
+                            }
+                        })
+                    }
                 }
             }
 
