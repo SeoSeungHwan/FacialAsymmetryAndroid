@@ -14,6 +14,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64.*
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -120,6 +121,15 @@ class MainActivity : AppCompatActivity() {
                         viewModel.postImage(type!!,body)
                         viewModel.bitmapLiveData.observe(this@MainActivity,{
                             imageView.setImageBitmap(it)
+                        })
+
+                        viewModel.loadingLiveData.observe(this@MainActivity,{
+                            if (it) {
+                                progressBar.bringToFront()
+                                progressBar.visibility = View.VISIBLE
+                            } else {
+                                progressBar.visibility = View.GONE
+                            }
                         })
 
                     }

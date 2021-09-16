@@ -35,6 +35,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun postImage(type: String , body : MultipartBody.Part) {
+        loadingLiveData.value = true
         viewModelScope.launch {
             val type1 = serverRecieverService.postImage1(body)
             val type2 = serverRecieverService.postImage2(body)
@@ -76,15 +77,18 @@ class MainViewModel : ViewModel() {
                                 val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
                                 val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
                                 bitmapLiveData.value = bitmap
+                                loadingLiveData.value = false
                                 //it.message : 메시지 출력
                             }
                         } catch (e: IOException) {
                             Log.d(TAG, "onResponse: 텍스트와 이미지 가져오는 부분에서 에러")
+                            loadingLiveData.value = false
                         }
                     }
 
                     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                         Log.d(TAG, "onFailure: 연결 실패")
+                        loadingLiveData.value = false
                     }
                 })
             }
