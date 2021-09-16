@@ -1,7 +1,9 @@
 package com.example.facialasymmetryandroid
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +33,8 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         "Type5",
         "Type6"
     )
+
+
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
         return view == `object`
@@ -64,7 +68,5 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         val view  = `object` as View
         viewPager.removeView(view)
     }
-
-    
 
 }
