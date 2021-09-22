@@ -87,7 +87,7 @@ class MainViewModel : ViewModel() {
                     }
 
                     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                        Log.d(TAG, "onFailure: 연결 실패")
+                        Log.d(TAG, "onFailure: 연결 실패 + ${t}")
                         loadingLiveData.value = false
                     }
                 })
