@@ -51,7 +51,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintLeft_toRightOf="@+id/camera_btn"
         app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
@@ -71,13 +70,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:fontFamily="@font/font"
-            android:text="정확도 :"
+            android:text="평균 :"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/result_percent_tv"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"

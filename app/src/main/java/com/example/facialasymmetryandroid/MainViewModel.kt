@@ -22,6 +22,7 @@ import java.io.IOException
 class MainViewModel : ViewModel() {
     val loadingLiveData = MutableLiveData<Boolean>()
     val bitmapLiveData = MutableLiveData<Bitmap>()
+    val returnString = MutableLiveData<ReturnString>()
 
     private val serverRecieverService: ServerRecieverService
 
@@ -77,6 +78,7 @@ class MainViewModel : ViewModel() {
                                 val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
                                 val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
                                 bitmapLiveData.value = bitmap
+                                returnString.value = it
                                 loadingLiveData.value = false
                                 //it.message : 메시지 출력
                             }

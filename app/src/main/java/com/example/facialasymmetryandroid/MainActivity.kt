@@ -132,6 +132,14 @@ class MainActivity : AppCompatActivity() {
                             }
                         })
 
+                        viewModel.returnString.observe(this@MainActivity,{
+                            val intent = Intent(this@MainActivity,ResultActivity::class.java)
+                            Log.d(TAG, "onPermissionGranted: ${it.imageBytes}")
+                            //intent.putExtra("imageBytes",it.imageBytes)
+                            intent.putExtra("message",it.message)
+                            startActivity(intent)
+                        })
+
                     }
                 }
             }
