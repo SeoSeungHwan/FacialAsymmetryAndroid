@@ -12,25 +12,36 @@ import com.google.gson.Gson
 import com.router.cointts.repository.ServerRecieverService
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
     val loadingLiveData = MutableLiveData<Boolean>()
-    val bitmapLiveData = MutableLiveData<Bitmap>()
+    val imageUrlLiveData = MutableLiveData<String>()
     val returnString = MutableLiveData<ReturnString>()
 
     private val serverRecieverService: ServerRecieverService
 
     init {
+            val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(1000, TimeUnit.SECONDS)
+            .readTimeout(1000, TimeUnit.SECONDS)
+            .writeTimeout(1000, TimeUnit.SECONDS)
+            .build()
+
         val retrofit = Retrofit
             .Builder()
+            .client(okHttpClient)
             .baseUrl("http://220.69.208.242:80")
             .build()
+
+
 
         serverRecieverService = retrofit.create(ServerRecieverService::class.java)
     }
@@ -75,9 +86,8 @@ class MainViewModel : ViewModel() {
                                 response.body()!!.string(),
                                 ReturnString::class.java
                             ).also {
-                                val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
-                                val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
-                                bitmapLiveData.value = bitmap
+                                Log.d(TAG, "onResponse: ${it.message}")
+                                imageUrlLiveData.value = it.imageBytes
                                 returnString.value = it
                                 loadingLiveData.value = false
                                 //it.message : 메시지 출력

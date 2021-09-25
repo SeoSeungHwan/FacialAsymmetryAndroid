@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.activity_main.*
@@ -83,6 +84,9 @@ class MainActivity : AppCompatActivity() {
                 //검사 시작 OnClickListener 구현
                 //todo loadingbar 구현
                 submit_btn.setOnClickListener {
+
+                    val start   = System.currentTimeMillis();
+
                     //이미지를 입력하지 않았다면
                     if (bitmap == null) {
                         Toast.makeText(this@MainActivity, "이미지를 입력해주세요.", Toast.LENGTH_SHORT).show()
@@ -119,8 +123,12 @@ class MainActivity : AppCompatActivity() {
                         //이미지 전송후 콜백받는 부분
                         //todo viewmodel postImage()함수 호출 ,  body 랑 type전하기
                         viewModel.postImage(type!!,body)
-                        viewModel.bitmapLiveData.observe(this@MainActivity,{
-                            imageView.setImageBitmap(it)
+                        viewModel.imageUrlLiveData.observe(this@MainActivity,{
+                            Glide.with(this@MainActivity)
+                                .load(it)
+                                .into(imageView)
+                            val end = System.currentTimeMillis()
+                            Log.d(TAG, "onPermissionGranted: time : ${(end-start)/1000}")
                         })
 
                         viewModel.loadingLiveData.observe(this@MainActivity,{
@@ -133,11 +141,11 @@ class MainActivity : AppCompatActivity() {
                         })
 
                         viewModel.returnString.observe(this@MainActivity,{
-                            val intent = Intent(this@MainActivity,ResultActivity::class.java)
+                           /* val intent = Intent(this@MainActivity,ResultActivity::class.java)
                             Log.d(TAG, "onPermissionGranted: ${it.imageBytes}")
-                            //intent.putExtra("imageBytes",it.imageBytes)
+                            intent.putExtra("imageBytes",it.imageBytes)
                             intent.putExtra("message",it.message)
-                            startActivity(intent)
+                            startActivity(intent)*/
                         })
 
                     }

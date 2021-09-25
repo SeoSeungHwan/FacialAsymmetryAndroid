@@ -12,11 +12,11 @@ class ResultActivity : AppCompatActivity() {
         setContentView(R.layout.activity_result)
 
 
-        //val imageBytes = intent.getStringExtra("imageBytes")
+        val imageBytes = intent.getStringExtra("imageBytes")
         val message = intent.getStringExtra("message")
         result_percent_tv.text = message
 
-        //Log.d("Test", "onCreate: ${imageBytes}")
+        Log.d("Test", "onCreate: ${imageBytes}")
 
         //val encodeByte = android.util.Base64.decode(imageBytes, android.util.Base64.DEFAULT)
         //val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
