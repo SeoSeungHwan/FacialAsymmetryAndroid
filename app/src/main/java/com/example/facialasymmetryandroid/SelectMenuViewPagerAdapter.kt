@@ -34,8 +34,7 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         "Type6"
     )
 
-
-
+    
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
         return view == `object`
     }
@@ -45,16 +44,19 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = layoutInflater!!.inflate(R.layout.type_item,null)
-        val image = view.findViewById<View>(R.id.type_iv) as ImageView
-        val textview = view.findViewById<View>(R.id.type_tv) as TextView
+        val type_iv = view.findViewById<View>(R.id.type_iv) as ImageView
+        val type_tv = view.findViewById<View>(R.id.type_tv) as TextView
 
-        image.setImageResource(images[position])
+        type_iv.setImageResource(images[position])
+        type_tv.text = texts[position]
+        
+        //view클릭 시 해당 Type상세 페이지로 이동
         view.setOnClickListener {
             var intent = Intent(context, MainActivity::class.java)
-            intent.putExtra("type",textview.text.toString())
+            intent.putExtra("type",type_tv.text.toString())
             context.startActivity(intent)
         }
-        textview.text = texts[position]
+
         val viewpager = container as ViewPager
         viewpager.addView(view,0)
         viewpager.setPageTransformer(true,UltraDepthScaleTransformer())
@@ -62,11 +64,9 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         return view
     }
 
-
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
         val viewPager = container as ViewPager
         val view  = `object` as View
         viewPager.removeView(view)
     }
-
 }

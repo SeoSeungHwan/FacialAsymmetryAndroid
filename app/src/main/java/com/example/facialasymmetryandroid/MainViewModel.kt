@@ -12,70 +12,55 @@ import com.google.gson.Gson
 import com.router.cointts.repository.ServerRecieverService
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
     val loadingLiveData = MutableLiveData<Boolean>()
-    val imageUrlLiveData = MutableLiveData<String>()
-    val returnString = MutableLiveData<ReturnString>()
+    val bitmapLiveData = MutableLiveData<Bitmap>()
 
     private val serverRecieverService: ServerRecieverService
 
     init {
-            val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(1000, TimeUnit.SECONDS)
-            .readTimeout(1000, TimeUnit.SECONDS)
-            .writeTimeout(1000, TimeUnit.SECONDS)
-            .build()
-
         val retrofit = Retrofit
             .Builder()
-            .client(okHttpClient)
             .baseUrl("http://220.69.208.242:80")
             .build()
-
-
 
         serverRecieverService = retrofit.create(ServerRecieverService::class.java)
     }
 
     fun postImage(type: String , body : MultipartBody.Part) {
+
         loadingLiveData.value = true
+
         viewModelScope.launch {
-            val type1 = serverRecieverService.postImage1(body)
-            val type2 = serverRecieverService.postImage2(body)
-            val type3 = serverRecieverService.postImage3(body)
-            val type4 = serverRecieverService.postImage4(body)
-            val type5 = serverRecieverService.postImage5(body)
-            val type6 = serverRecieverService.postImage6(body)
 
             fun funType(typeStr: String): Call<ResponseBody> {
                 return when (typeStr) {
-                    "Type1" -> type1
-                    "Type2" -> type2
-                    "Type3" -> type3
-                    "Type4" -> type4
-                    "Type5" -> type5
-                    "Type6" -> type6
-                    else -> type1
+                    "Type1" -> serverRecieverService.postImage1(body)
+                    "Type2" -> serverRecieverService.postImage2(body)
+                    "Type3" -> serverRecieverService.postImage3(body)
+                    "Type4" -> serverRecieverService.postImage4(body)
+                    "Type5" -> serverRecieverService.postImage5(body)
+                    "Type6" -> serverRecieverService.postImage6(body)
+                    else -> serverRecieverService.postImage1(body)
                 }
             }
+
             if (type != null) {
                 funType(type).enqueue(object : Callback<ResponseBody> {
                     override fun onResponse(
                         call: Call<ResponseBody>,
                         response: Response<ResponseBody>
                     ) {
-                        //응답오는 과정에서 에러 발생 시 ,  얼굴찾지 못함 토스트 출력
+                        //응답오는 과정에서 에러 발생 시 ,  얼굴을 찾지 못할 경우
                         if (!response.isSuccessful) {
-                            Log.d(TAG, "onResponse: 에러 " + response.toString())
+                            Log.d(TAG, "onResponse: " + response.toString())
                             return
                         }
 
@@ -86,9 +71,9 @@ class MainViewModel : ViewModel() {
                                 response.body()!!.string(),
                                 ReturnString::class.java
                             ).also {
-                                Log.d(TAG, "onResponse: ${it.message}")
-                                imageUrlLiveData.value = it.imageBytes
-                                returnString.value = it
+                                val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
+                                val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
+                                bitmapLiveData.value = bitmap
                                 loadingLiveData.value = false
                                 //it.message : 메시지 출력
                             }

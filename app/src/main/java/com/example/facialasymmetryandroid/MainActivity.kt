@@ -18,7 +18,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import com.bumptech.glide.Glide
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.activity_main.*
@@ -50,7 +49,6 @@ class MainActivity : AppCompatActivity() {
 
         //PermissionListener 구현
         var permissionlistener: PermissionListener = object : PermissionListener {
-            //Permission 승인될 시
             override fun onPermissionGranted() {
 
                 //사진촬영 OnClickListener 구현
@@ -81,16 +79,14 @@ class MainActivity : AppCompatActivity() {
                     imageView.setImageResource(0)
                     bitmap = null
                 }
+
                 //검사 시작 OnClickListener 구현
-                //todo loadingbar 구현
                 submit_btn.setOnClickListener {
-
-                    val start   = System.currentTimeMillis();
-
                     //이미지를 입력하지 않았다면
                     if (bitmap == null) {
                         Toast.makeText(this@MainActivity, "이미지를 입력해주세요.", Toast.LENGTH_SHORT).show()
-                    } else {
+                    }
+                    else {
                         imageView.setImageResource(0)
 
                         val f = File(applicationContext.cacheDir, "tmp")
@@ -103,12 +99,11 @@ class MainActivity : AppCompatActivity() {
                         }
                         val bitmapdata = bos.toByteArray()
 
-
                         try {
                             var fos = FileOutputStream(f)
-                            fos!!.write(bitmapdata)
-                            fos!!.flush()
-                            fos!!.close()
+                            fos.write(bitmapdata)
+                            fos.flush()
+                            fos.close()
                         } catch (e: IOException) {
                             e.printStackTrace()
                         } catch (e: FileNotFoundException) {
@@ -118,17 +113,13 @@ class MainActivity : AppCompatActivity() {
                         //MultipartBody에 현재 bitmap 담기
                         val reqFile: RequestBody =
                             RequestBody.create(MediaType.parse("multipart/form-data"), f)
-                        val body = MultipartBody.Part.createFormData("file", f.getName(), reqFile)
+                        val body = MultipartBody.Part.createFormData("file", f.name, reqFile)
 
                         //이미지 전송후 콜백받는 부분
                         //todo viewmodel postImage()함수 호출 ,  body 랑 type전하기
                         viewModel.postImage(type!!,body)
-                        viewModel.imageUrlLiveData.observe(this@MainActivity,{
-                            Glide.with(this@MainActivity)
-                                .load(it)
-                                .into(imageView)
-                            val end = System.currentTimeMillis()
-                            Log.d(TAG, "onPermissionGranted: time : ${(end-start)/1000}")
+                        viewModel.bitmapLiveData.observe(this@MainActivity,{
+                            imageView.setImageBitmap(it)
                         })
 
                         viewModel.loadingLiveData.observe(this@MainActivity,{
@@ -140,22 +131,16 @@ class MainActivity : AppCompatActivity() {
                             }
                         })
 
-                        viewModel.returnString.observe(this@MainActivity,{
-                           /* val intent = Intent(this@MainActivity,ResultActivity::class.java)
-                            Log.d(TAG, "onPermissionGranted: ${it.imageBytes}")
-                            intent.putExtra("imageBytes",it.imageBytes)
-                            intent.putExtra("message",it.message)
-                            startActivity(intent)*/
-                        })
-
                     }
                 }
             }
 
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                TODO("Not yet implemented")
+                Toast.makeText(this@MainActivity,"권한을 허용하지 않아 진행이 불가합니다.",Toast.LENGTH_SHORT).show()
+                var intent = Intent(this@MainActivity, SelectMenu::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
             }
-
         }
 
         /*

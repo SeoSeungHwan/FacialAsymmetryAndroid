@@ -10,7 +10,7 @@ interface ServerRecieverService {
         const val BASE_URL = "http://220.69.208.242:80"
     }
 
-
+//http://220.69.208.242:80/res/type1
     @Multipart
     @POST("/res/type1")
     fun postImage1(
