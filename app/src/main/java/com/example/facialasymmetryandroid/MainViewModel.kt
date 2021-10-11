@@ -90,6 +90,7 @@ class MainViewModel : ViewModel() {
                                 ReturnString::class.java
                             ).also {
                                 returnStringLiveData.value = it
+                                GlobalApplication.returnString = it
                                 loadingLiveData.value = false
                             }
                         } catch (e: IOException) {
