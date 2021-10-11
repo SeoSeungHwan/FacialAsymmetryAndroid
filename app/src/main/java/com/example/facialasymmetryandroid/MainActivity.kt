@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import kotlinx.android.synthetic.main.activity_main.*
@@ -110,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                             e.printStackTrace()
                         }
 
-                        //MultipartBody에 현재 bitmap 담기
+                        //비트맵 저장 -> 비트맵을 FileOutPutStream으로 변경 - > RequestBody와 FileOutPutStream을 사용하여 MultipartBody를 생성
                         val reqFile: RequestBody =
                             RequestBody.create(MediaType.parse("multipart/form-data"), f)
                         val body = MultipartBody.Part.createFormData("file", f.name, reqFile)
@@ -118,8 +119,10 @@ class MainActivity : AppCompatActivity() {
                         //이미지 전송후 콜백받는 부분
                         //todo viewmodel postImage()함수 호출 ,  body 랑 type전하기
                         viewModel.postImage(type!!,body)
-                        viewModel.bitmapLiveData.observe(this@MainActivity,{
-                            imageView.setImageBitmap(it)
+                        viewModel.returnStringLiveData.observe(this@MainActivity,{
+                            Glide.with(this@MainActivity)
+                                .load(it.imageBytes)
+                                .into(imageView)
                         })
 
                         viewModel.loadingLiveData.observe(this@MainActivity,{

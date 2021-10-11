@@ -18,16 +18,27 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.IOException
+import com.google.gson.GsonBuilder
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
+
 
 class MainViewModel : ViewModel() {
     val loadingLiveData = MutableLiveData<Boolean>()
-    val bitmapLiveData = MutableLiveData<Bitmap>()
+    val returnStringLiveData = MutableLiveData<ReturnString>()
 
     private val serverRecieverService: ServerRecieverService
 
     init {
+        val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(1000, TimeUnit.SECONDS)
+            .readTimeout(1000, TimeUnit.SECONDS)
+            .writeTimeout(1000, TimeUnit.SECONDS)
+            .build()
+
         val retrofit = Retrofit
             .Builder()
+            .client(okHttpClient)
             .baseUrl("http://220.69.208.242:80")
             .build()
 
@@ -66,16 +77,20 @@ class MainViewModel : ViewModel() {
 
                         //파이썬 코드로부터 응답받는 부분
                         try {
+                            //val gsonBuilder = GsonBuilder()
+                            //val gson = gsonBuilder.create()
+                            //val returnString: ReturnString = gson.fromJson(response.body()!!.string(), ReturnString::class.java)
+
+                            var returnStr = response.body()!!.string().replace("\\" , "")
+                            returnStr = returnStr.substring(1)
+                            returnStr = returnStr.substring(0,returnStr.length-2)
                             //텍스트와 이미지 가져오기
                             Gson().fromJson(
-                                response.body()!!.string(),
+                                returnStr,
                                 ReturnString::class.java
                             ).also {
-                                val encodeByte = android.util.Base64.decode(it.imageBytes, android.util.Base64.DEFAULT)
-                                val bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
-                                bitmapLiveData.value = bitmap
+                                returnStringLiveData.value = it
                                 loadingLiveData.value = false
-                                //it.message : 메시지 출력
                             }
                         } catch (e: IOException) {
                             Log.d(TAG, "onResponse: 텍스트와 이미지 가져오는 부분에서 에러")

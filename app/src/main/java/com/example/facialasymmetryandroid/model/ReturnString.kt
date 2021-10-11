@@ -4,11 +4,14 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class ReturnString(
+    var distance: Map<String,String>?,
     var status: String?,
     var message: String?,
     var imageBytes: String?
+
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
+        TODO("distance"),
         parcel.readString(),
         parcel.readString(),
         parcel.readString()
@@ -35,3 +38,5 @@ data class ReturnString(
         }
     }
 }
+//: Parcelable
+
