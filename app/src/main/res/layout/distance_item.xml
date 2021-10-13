@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/distance_index_tv"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -26,7 +26,7 @@
             android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/result_percent_tv"
+            android:id="@+id/distance_percent_tv"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"

@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,9 +32,9 @@ class MainViewModel : ViewModel() {
 
     init {
         val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(1000, TimeUnit.SECONDS)
-            .readTimeout(1000, TimeUnit.SECONDS)
-            .writeTimeout(1000, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
             .build()
 
         val retrofit = Retrofit
@@ -101,6 +102,7 @@ class MainViewModel : ViewModel() {
 
                     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                         Log.d(TAG, "onFailure: 연결 실패 + ${t}")
+                        returnStringLiveData.value = null
                         loadingLiveData.value = false
                     }
                 })

@@ -15,10 +15,12 @@
         android:layout_centerInParent="true"
         android:layout_marginTop="50dp"
         android:backgroundTint="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/description_tv"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+    </com.tmall.ultraviewpager.UltraViewPager>
 
     <TextView
         android:id="@+id/description_tv"
@@ -28,16 +30,26 @@
         android:layout_marginLeft="50dp"
         android:layout_marginEnd="50dp"
         android:layout_marginRight="50dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="40dp"
         android:background="@drawable/custom_linearlayout"
+        android:fontFamily="@font/cafef24font"
+        android:gravity="center"
         android:padding="10dp"
         android:text="해당 Type에 대한 설명"
         android:textColor="@color/white"
-        android:gravity="center"
         android:textSize="15sp"
-        android:fontFamily="@font/cafef24font"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="※ 위 사진을 선택하시면 검사창으로 이동합니다."
+        android:textColor="@color/main2"
+        app:layout_constraintBottom_toTopOf="@+id/description_tv"
+        app:layout_constraintEnd_toEndOf="@+id/description_tv"
+        app:layout_constraintStart_toStartOf="@+id/description_tv" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

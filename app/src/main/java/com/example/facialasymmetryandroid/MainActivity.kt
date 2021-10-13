@@ -120,13 +120,13 @@ class MainActivity : AppCompatActivity() {
                         //todo viewmodel postImage()함수 호출 ,  body 랑 type전하기
                         viewModel.postImage(type!!,body)
                         viewModel.returnStringLiveData.observe(this@MainActivity,{
-                            /*Glide.with(this@MainActivity)
-                                .load(it.imageBytes)
-                                .into(imageView)*/
-
-                            Log.d(TAG, "onPermissionGranted: ${it.imageBytes}")
-                            val intent = Intent(this@MainActivity,ResultActivity::class.java)
-                            startActivity(intent)
+                            if(it ==null){
+                                Toast.makeText(this@MainActivity,"얼굴 검출 실패",Toast.LENGTH_SHORT).show()
+                            }else{
+                                val intent = Intent(this@MainActivity,ResultActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                            }
                         })
 
                         viewModel.loadingLiveData.observe(this@MainActivity,{

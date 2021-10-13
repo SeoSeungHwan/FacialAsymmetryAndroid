@@ -41,7 +41,7 @@
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
@@ -71,19 +71,19 @@
                 android:padding="20dp">
 
                 <TextView
-                    android:id="@+id/textView1"
+                    android:id="@+id/distance_index_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:fontFamily="@font/font"
-                    android:text="평균 :"
                     android:gravity="center"
+                    android:text="대칭 평균 :"
                     android:textColor="@color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/result_percent_tv"
+                    android:id="@+id/distance_percent_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -102,6 +102,6 @@
                 android:layout_marginRight="50dp"
                 tools:listitem="@layout/distance_item" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
