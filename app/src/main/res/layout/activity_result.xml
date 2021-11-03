@@ -77,7 +77,7 @@
                     android:layout_weight="1"
                     android:fontFamily="@font/font"
                     android:gravity="center"
-                    android:text="대칭 평균 :"
+                    android:text="좌우 대칭 평균 : "
                     android:textColor="@color/black"
                     android:textSize="20sp"
                     android:textStyle="bold" />
