@@ -17,8 +17,8 @@ class ResultDistanceRecyclerViewAdapter(private val dataSet: Map<String,String>)
 
 
         init {
-            distance_index_tv = view.findViewById(R.id.distance_index_tv)
-            distance_percent_tv = view.findViewById(R.id.distance_percent_tv)
+            distance_index_tv = view.findViewById(R.id.index_tv)
+            distance_percent_tv = view.findViewById(R.id.final_result_tv)
         }
 
     }

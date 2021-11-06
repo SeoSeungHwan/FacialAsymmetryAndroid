@@ -35,6 +35,7 @@ class SelectMenu : AppCompatActivity() {
                     3 -> description_tv.text = "slight eye closure"
                     4 -> description_tv.text = "tight eye closure"
                     5 -> description_tv.text = "raised eyebrows"
+                    6 -> description_tv.text = "최종 결과 확인"
                 }
             }
         })

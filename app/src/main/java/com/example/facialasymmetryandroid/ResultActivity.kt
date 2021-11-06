@@ -19,7 +19,7 @@ class ResultActivity : AppCompatActivity() {
             .load(GlobalApplication.returnString.imageBytes)
             .into(result_iv)
 
-        distance_percent_tv.text = GlobalApplication.returnString.message.toString()+"%"
+        final_result_tv.text = GlobalApplication.returnString.message.toString()+"%"
 
         val linearLayoutMangerWrapper = LinearLayoutManager(this@ResultActivity,
             RecyclerView.VERTICAL,

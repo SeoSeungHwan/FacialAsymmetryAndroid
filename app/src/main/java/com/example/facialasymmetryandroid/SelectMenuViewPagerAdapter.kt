@@ -23,7 +23,8 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         R.drawable.c,
         R.drawable.d,
         R.drawable.e,
-        R.drawable.f
+        R.drawable.f,
+        R.drawable.result
     )
     private var texts = arrayOf(
         "Type1",
@@ -31,7 +32,8 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         "Type3",
         "Type4",
         "Type5",
-        "Type6"
+        "Type6",
+        "최종결과 확인"
     )
 
     
@@ -52,9 +54,15 @@ class SelectMenuViewPagerAdapter(private val context : Context) : PagerAdapter()
         
         //view클릭 시 해당 Type상세 페이지로 이동
         view.setOnClickListener {
-            var intent = Intent(context, MainActivity::class.java)
-            intent.putExtra("type",type_tv.text.toString())
-            context.startActivity(intent)
+            if(type_tv.text.toString().equals("최종결과 확인")){
+                var intent = Intent(context, FinalResult::class.java)
+                context.startActivity(intent)
+            }else{
+                var intent = Intent(context, MainActivity::class.java)
+                intent.putExtra("type",type_tv.text.toString())
+                context.startActivity(intent)
+            }
+
         }
 
         val viewpager = container as ViewPager
